@@ -55,6 +55,9 @@ public class GamePanel extends ListenerPanel {
         }        repaint();
     }
 
+//    public boolean canCombine(){
+//
+//    }
 
     /**
      * Implement the abstract method declared in ListenerPanel.

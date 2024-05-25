@@ -23,6 +23,12 @@ public class GameController {
         System.out.println("Do restart game here");
     }
 
+    public void redoGame() {
+        model.redo();
+        view.updateGridsNumber();
+        System.out.println("Do redo game here");
+    }
+
     //todo: add other methods such as loadGame, saveGame...
 
 }

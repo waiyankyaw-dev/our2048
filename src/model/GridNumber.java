@@ -9,12 +9,15 @@ public class GridNumber {
 
     private int[][] numbers;     //boards  4*4
 
+    private int[][] tempNumbers;
+
     static Random random = new Random();
 
     public GridNumber(int xCount, int yCount) {
         this.X_COUNT = xCount;
         this.Y_COUNT = yCount;
         this.numbers = new int[this.X_COUNT][this.Y_COUNT];
+        this.tempNumbers = new int[this.X_COUNT][this.Y_COUNT];
 
         //call method
         this.fakeInitialNumbers();   //need to create a spawn
@@ -33,9 +36,14 @@ public class GridNumber {
     }
 
     public void fakeInitialNumbers() {
+
         for (int i = 0; i < numbers.length; i++) {
             for (int j = 0; j < numbers[i].length; j++) {
-                numbers[i][j] = random.nextInt(2) == 0 ? 2 : 0;
+                int powerNumber = random.nextInt(4);
+                if(powerNumber == 0){
+                    powerNumber++;
+                }
+                numbers[i][j] = random.nextInt(2) == 0 ? (int) Math.pow(2, powerNumber) : 0;
             }
 
         }
@@ -75,12 +83,14 @@ public class GridNumber {
         for (int[] number : numbers) {
             Arrays.fill(number, 0);
         }
-        initialNumbers();
+//        initialNumbers();
+        fakeInitialNumbers();
         printNumber();
     }
 
     //todo: finish the method of four direction moving.
     public void moveRight() {
+        storeTempArray();
         for (int i = 0; i < numbers.length; i++) {
             for (int j = 0; j < numbers.length; j++) {
                 if (j + 1 == numbers.length) {
@@ -92,9 +102,13 @@ public class GridNumber {
             }
         }
         printNumber();
+
+        printTempNumber();
     }
 
     public void moveLeft() {
+        storeTempArray();
+
         for (int i = 0; i < numbers.length; i++) {
             for (int j = numbers.length - 1; j >= 0; j--) {
                 if (j - 1 < 0) {
@@ -106,10 +120,13 @@ public class GridNumber {
             }
         }
         printNumber();
+        printTempNumber();
 
     }
 
     public void moveUp() {
+        storeTempArray();
+
         for (int i = 0; i < numbers.length; i++) {
             for (int j = numbers.length - 1; j >= 0; j--) {
                 if (j - 1 < 0) {
@@ -127,6 +144,8 @@ public class GridNumber {
     }
 
     public void moveDown() {
+        storeTempArray();
+
         for (int i = 0; i < numbers.length; i++) {
             for (int j = 0; j < numbers.length; j++) {
                 if (j + 1 == numbers.length) {
@@ -149,6 +168,28 @@ public class GridNumber {
     public void printNumber() {
         for (int[] line : numbers) {
             System.out.println(Arrays.toString(line));
+        }
+    }
+
+    public void printTempNumber() {
+        for (int[] line : tempNumbers) {
+            System.out.println(Arrays.toString(line));
+        }
+    }
+
+    public void redo(){
+        for (int i = 0; i < tempNumbers.length; i++) {
+            for (int j = 0; j < tempNumbers.length; j++) {
+                numbers[i][j] = tempNumbers[i][j];
+            }
+        }
+    }
+
+    public void storeTempArray(){
+        for (int i = 0; i < numbers.length; i++) {
+            for (int j = 0; j < numbers.length; j++) {
+                tempNumbers[i][j] = numbers[i][j];
+            }
         }
     }
 }
