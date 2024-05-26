@@ -1,5 +1,7 @@
 package model;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
@@ -23,6 +25,8 @@ public class GridNumber {
 
         //call method
         this.initialNumbers();   //need to create a spawn
+
+//        this.load("nalfin");
     }
 
     //
@@ -334,14 +338,9 @@ public class GridNumber {
             FileWriter writer = new FileWriter(filepath + ".txt", true);
             for (int i = 0; i < numbers.length; i++) {
                 for (int j = 0; j < numbers.length; j++) {
-                    writer.write(numbers[i][j] + "-");
-                    if (i == numbers.length - 1 && j == numbers.length - 1) {
-                        writer.write("" + numbers[i][j]);
-                    }
-
-//                    if (i == numbers.length - 1 && j == numbers.length - 1)
-//                        writer.write("" + numbers[i][j]);
-//                    else writer.write(numbers[i][j] + "-");
+                    if (j == numbers.length - 1)
+                        writer.write( numbers[i][j]+ "\n");
+                    else writer.write(numbers[i][j] + "-");
                 }
             }
             writer.close();
@@ -352,8 +351,25 @@ public class GridNumber {
 
 
     //loadfile
-    public void load() {
+    public void load(String filepath) {
+        try {
+            FileReader fr = new FileReader(filepath + ".txt");
+            BufferedReader br = new BufferedReader(fr); //read line by line
 
+                for(int i =0; i < numbers.length ; i++) {
+                    String[] arrayLine = br.readLine().split("-");
+                    System.out.println(arrayLine[i]);
+                    for(int j=0; j < numbers.length; j++) {
+//                        System.out.println(Integer.parseInt(arrayLine[i]));
+                        numbers[i][j] = Integer.parseInt(arrayLine[j]);
+                    }
+                }
+
+            fr.close();
+            printNumber();
+        } catch (Exception error) {
+            throw new RuntimeException(error);
+        }
     }
 
     public void storeTempArray() {
