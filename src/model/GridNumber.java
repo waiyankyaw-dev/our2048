@@ -13,18 +13,20 @@ public class GridNumber {
 
     private int[][] numbers;     //boards  4*4
 
-    private int YourScore=0;
-    private int YourHighScore;
+    private int YourScore = 0;
+    private int YourHighScore = 0;
     //private int[] WinScores = {16, 512, 1024, 2048, 4096};
     private int WinScore = 16;
+    private int score = 0;
 
     private int[][] tempNumbers;
-//    private boolean[] LOSS_CHECK= {true,true,true};
+    //    private boolean[] LOSS_CHECK= {true,true,true};
     private boolean[] LOSS_CHECK_inside;
+    private boolean[] LOSS_CHECK;
+
     private boolean Lost = false;
 
     int steps;
-
 
 
     static Random random = new Random();
@@ -36,16 +38,14 @@ public class GridNumber {
         this.tempNumbers = new int[this.X_COUNT][this.Y_COUNT];
 
         this.LOSS_CHECK_inside = new boolean[xCount];
+        this.LOSS_CHECK = new boolean[xCount];
 
-        for(int i = 0; i<xCount; i++){
-            LOSS_CHECK_inside[i] = true;
-        }
 
         //call method
-//        this.initialNumbers();   //need to create a spawn
+        this.initialNumbers();   //need to create a spawn
 
-        this.load("final");
-        GameOver();
+//        this.load("final");
+//        GameOver();
         this.steps = 0;
     }
 
@@ -60,15 +60,6 @@ public class GridNumber {
         numbers[i][j] = random.nextInt(10) < 9 ? 2 : 4; // 90% chance to get 2
 
 
-//        for (int i = 0; i < numbers.length; i++) {
-//            for (int j = 0; j < numbers[i].length; j++) {
-//                //only spawn must come out form the tile having 0 value
-//                if (numbers[i][j] == 0) {
-//                    numbers[i][j] = random.nextInt(10) < 9 ? 2 : 4; // 90% chance to get 2
-//                    break;
-//                }
-//            }
-//        }
     }
 
 //    public void fakeInitialNumbers() {
@@ -114,6 +105,7 @@ public class GridNumber {
     //restart
     public void restart() {
         this.steps = 0;
+        this.score = 0;
         System.out.println("Restart run");
         for (int[] number : numbers) {
             Arrays.fill(number, 0);
@@ -123,9 +115,13 @@ public class GridNumber {
         printNumber();
     }
 
+
     //todo: finish the method of four direction moving.
     public void moveRight() {
+
         storeTempArray();
+
+        //for sorting/colliding
         for (int i = 0; i < numbers.length; i++) {
             for (int j = numbers.length - 1; j > 0; j--) {
                 for (int k = numbers.length - 1; k >= 0; k--) {//moving 0s to the left before starting to add the numbers
@@ -139,22 +135,35 @@ public class GridNumber {
                     }
                 }//end for k
             }//end for j
-
+            printNumber();
         } //end for i
 
+        //for fusing
         for (int i = 0; i < numbers.length; i++) {
+            int TempScore = 0;
             for (int j = numbers.length - 1; j > 0; j--) {
                 if (j - 1 < 0) {//fusing
                     // System.out.println('1');
                     break;
                 } else if (numbers[i][j - 1] == numbers[i][j]) {//&& numbers[i][k]!=0 && numbers[i][k-1]!=0
-                    numbers[i][j] += numbers[i][j - 1];
+                    int highCombinedNumber = numbers[i][j] += numbers[i][j - 1];
                     numbers[i][j - 1] = 0;
-                    // System.out.println('3');}*/
+                    score += highCombinedNumber;
+                    // if(TempScore > YourScore){YourScore =TempScore;}
                 }
-
-
+                //changing temp score
+                if (TempScore < numbers[i][j]) {
+                    TempScore = numbers[i][j];
+//                    System.out.println("TEMPSCORE-----------" + TempScore + "-----------");
+                }
             }//end for j
+            if (TempScore >= YourScore) {
+                YourScore = TempScore;
+            }//changing the player score
+            if (YourScore >= YourHighScore) {
+                YourHighScore = YourScore;
+            }//changing the players high score
+
             for (int j = numbers.length - 1; j > 0; j--) {
                 if (numbers[i][j] == 0) {
                     numbers[i][j] += numbers[i][j - 1];
@@ -163,14 +172,26 @@ public class GridNumber {
             }
 
         }//end for i
+        if (YourScore >= WinScore) {
+            System.out.println("--------YOU WIN---------");
+        }
+        System.out.println("YOUR SCORE-----------" + YourScore + "-----------");
+        System.out.println("YOUR HIGH SCORE-----------" + YourHighScore + "-----------");
+        System.out.println("WaiScore: " + score + "-----------");
+
+        GameWin();
+        GameOver();
+
         if (checkBoardFull()) {
             randomNextTile();
         }
-        printNumber();
+
     }//end method
 
     public void moveLeft() {
+
         storeTempArray();
+
         //sorting
         for (int i = 0; i < numbers.length; i++) {
             for (int j = 0; j < numbers.length; j++) {
@@ -186,19 +207,35 @@ public class GridNumber {
 
                 //adding the numbers
             }//end for j
-
+            printNumber();
         }//end for i
 
         //fusing
         for (int i = 0; i < numbers.length; i++) {
+            int TempScore = 0;
             for (int k = 0; k < numbers.length; k++) {
                 if (k + 1 == numbers.length) {
                     break;
                 } else if (numbers[i][k + 1] == numbers[i][k]) {
-                    numbers[i][k] += numbers[i][k + 1];
+                    int highCombinedNumber= numbers[i][k] += numbers[i][k + 1];
                     numbers[i][k + 1] = 0;//end for i
+                    score += highCombinedNumber;
+                }
+                //Setting the temp score
+                if (TempScore < numbers[i][k]) {
+                    TempScore = numbers[i][k];
+                    System.out.println("TEMPSCORE-----------" + TempScore + "-----------");
                 }
             }//end for k
+
+            //changing the player score
+            if (TempScore >= YourScore) {
+                YourScore = TempScore;
+            }
+            if (YourScore >= YourHighScore) {
+                YourHighScore = YourScore;
+            }//changing the players high score
+
             for (int j = 0; j < numbers.length; j++) {
                 if (j + 1 == numbers.length) {
                     break;
@@ -208,16 +245,26 @@ public class GridNumber {
                     numbers[i][j + 1] = 0;
                 }//end if
             }//end for k
-
         }//end for i
+        if (YourScore >= WinScore) {
+            System.out.println("--------YOU WIN---------");
+        }
+        System.out.println("YOUR SCORE-----------" + YourScore + "-----------");
+        System.out.println("YOUR HIGH SCORE-----------" + YourHighScore + "-----------");
+        System.out.println("WaiScore: " + score + "-----------");
+
+        GameWin();
+        GameOver();
         if (checkBoardFull()) {
             randomNextTile();
         }
-        printNumber();
+
     }//end method
 
     public void moveUp() {
+
         storeTempArray();
+
         //sorting
         for (int i = 0; i < numbers.length; i++) {
             for (int j = 0; j < numbers.length; j++) {
@@ -234,26 +281,31 @@ public class GridNumber {
         }
 //fusing
         for (int i = 0; i < numbers.length; i++) {
+            int TempScore = 0;
             for (int j = 0; j < numbers.length; j++) {
                 //for loop for adding the numbers or not
                 if (j + 1 == numbers.length) {
                     break;
                 } else if (numbers[j][i] == numbers[j + 1][i]) {
-                    numbers[j][i] += numbers[j + 1][i];
+                    int highCombinedNumber = numbers[j][i] += numbers[j + 1][i];
                     numbers[j + 1][i] = 0;
+                    score += highCombinedNumber;
+                }
+                //Setting the temp score
+                if (TempScore <= numbers[j][i]) {
+                    TempScore = numbers[j][i];
+                    System.out.println("TEMPSCORE-----------" + TempScore + "-----------");
                 }
             }//end for j
-            for (int j = 0; j < numbers.length; j++) {
-                if (j + 1 == numbers.length) {
-                    break;
-                }
-                if (numbers[j][i] == 0) {
-                    numbers[j][i] += numbers[j + 1][i];
-                    numbers[j + 1][i] = 0;
-                }//end if
-            }
-            for (int j = 0; j < numbers.length; j++) {
 
+            if (TempScore >= YourScore) {
+                YourScore = TempScore;
+            }
+            if (YourScore >= YourHighScore) {
+                YourHighScore = YourScore;
+            }//changing the players high score
+
+            for (int j = 0; j < numbers.length; j++) {
                 for (int k = 0; k < numbers.length; k++) {//for loop for shifting 0s
                     if (k + 1 == numbers.length) {
                         break;
@@ -263,16 +315,28 @@ public class GridNumber {
                     }//end if
                 }//end for k
             }
-
+            printNumber();
         }//end for i
+        if (YourScore >= WinScore) {
+            System.out.println("--------YOU WIN---------");
+        }
+        System.out.println("YOUR SCORE-----------" + YourScore + "-----------");
+        System.out.println("YOUR HIGH SCORE-----------" + YourHighScore + "-----------");
+        System.out.println("WaiScore: " + score + "-----------");
+
+
+        GameWin();
+        GameOver();
         if (checkBoardFull()) {
             randomNextTile();
         }
-        printNumber();
+
     }//end method
 
     public void moveDown() {
+
         storeTempArray();
+
         for (int i = 0; i < numbers.length; i++) {
             for (int j = numbers.length - 1; j >= 0; j--) {
                 for (int k = numbers.length - 1; k >= 0; k--) {
@@ -290,14 +354,31 @@ public class GridNumber {
 
         //fusing
         for (int i = 0; i < numbers.length; i++) {
+            int TempScore = 0;
             for (int j = numbers.length - 1; j >= 0; j--) {
                 if (j - 1 < 0) {
                     break;
                 } else if (numbers[j][i] == numbers[j - 1][i]) {
-                    numbers[j][i] += numbers[j - 1][i];
+                    int highCombinedNumber = numbers[j][i] += numbers[j - 1][i];
                     numbers[j - 1][i] = 0;
+                    score += highCombinedNumber;
                 }//end if
+
+                //Setting the temp score
+                if (TempScore <= numbers[j][i]) {
+                    TempScore = numbers[j][i];
+                    System.out.println("TEMPSCORE-----------" + TempScore + "-----------");
+                }
             }//end for j
+
+            //setting up YOUR SCORE
+            if (TempScore >= YourScore) {
+                YourScore = TempScore;
+            }
+            if (YourScore >= YourHighScore) {
+                YourHighScore = YourScore;
+            }//changing the players high score
+
             for (int j = numbers.length - 1; j >= 0; j--) {
                 if (j - 1 < 0) {
                     break;
@@ -307,14 +388,215 @@ public class GridNumber {
                     numbers[j - 1][i] = 0;
                 }
             }
-
+            printNumber();
         }//end for i
+        if (YourScore >= WinScore) {
+            System.out.println("--------YOU WIN---------");
+        }
+        System.out.println("YOUR SCORE-----------" + YourScore + "-----------");
+        System.out.println("YOUR HIGH SCORE-----------" + YourHighScore + "-----------");
+        System.out.println("WaiScore: " + score + "-----------");
 
+        GameWin();
+        GameOver();
         if (checkBoardFull()) {
             randomNextTile();
         }
-        printNumber();
-    }
+
+    }//enf method
+
+    //todo: finish the method of four direction moving.
+//    public void moveRight() {
+//        storeTempArray();
+//        for (int i = 0; i < numbers.length; i++) {
+//            for (int j = numbers.length - 1; j > 0; j--) {
+//                for (int k = numbers.length - 1; k >= 0; k--) {//moving 0s to the left before starting to add the numbers
+//                    if (k - 1 < 0) {//stacking
+//                        // System.out.println('1');
+//                        break;
+//                    }
+//                    if (numbers[i][k] == 0) {
+//                        numbers[i][k] += numbers[i][k - 1];
+//                        numbers[i][k - 1] = 0;
+//                    }
+//                }//end for k
+//            }//end for j
+//
+//        } //end for i
+//
+//        for (int i = 0; i < numbers.length; i++) {
+//            for (int j = numbers.length - 1; j > 0; j--) {
+//                if (j - 1 < 0) {//fusing
+//                    // System.out.println('1');
+//                    break;
+//                } else if (numbers[i][j - 1] == numbers[i][j]) {//&& numbers[i][k]!=0 && numbers[i][k-1]!=0
+//                    numbers[i][j] += numbers[i][j - 1];
+//                    numbers[i][j - 1] = 0;
+//                    // System.out.println('3');}*/
+//                }
+//
+//
+//            }//end for j
+//            for (int j = numbers.length - 1; j > 0; j--) {
+//                if (numbers[i][j] == 0) {
+//                    numbers[i][j] += numbers[i][j - 1];
+//                    numbers[i][j - 1] = 0;
+//                }
+//            }
+//
+//        }//end for i
+//        if (checkBoardFull()) {
+//            randomNextTile();
+//        }
+//        printNumber();
+//    }//end method
+//
+//    public void moveLeft() {
+//        storeTempArray();
+//        //sorting
+//        for (int i = 0; i < numbers.length; i++) {
+//            for (int j = 0; j < numbers.length; j++) {
+//
+//                for (int k = 0; k < numbers.length; k++) {//moving 0s to the left before starting to add the numbers
+//                    if (k + 1 == numbers.length) {
+//                        break;
+//                    } else if (numbers[i][k] == 0) {
+//                        numbers[i][k] += numbers[i][k + 1];
+//                        numbers[i][k + 1] = 0;
+//                    }//end if
+//                }//end for k
+//
+//                //adding the numbers
+//            }//end for j
+//
+//        }//end for i
+//
+//        //fusing
+//        for (int i = 0; i < numbers.length; i++) {
+//            for (int k = 0; k < numbers.length; k++) {
+//                if (k + 1 == numbers.length) {
+//                    break;
+//                } else if (numbers[i][k + 1] == numbers[i][k]) {
+//                    numbers[i][k] += numbers[i][k + 1];
+//                    numbers[i][k + 1] = 0;//end for i
+//                }
+//            }//end for k
+//            for (int j = 0; j < numbers.length; j++) {
+//                if (j + 1 == numbers.length) {
+//                    break;
+//                }
+//                if (numbers[i][j] == 0) {
+//                    numbers[i][j] += numbers[i][j + 1];
+//                    numbers[i][j + 1] = 0;
+//                }//end if
+//            }//end for k
+//
+//        }//end for i
+//        if (checkBoardFull()) {
+//            randomNextTile();
+//        }
+//        printNumber();
+//    }//end method
+//
+//    public void moveUp() {
+//        storeTempArray();
+//        //sorting
+//        for (int i = 0; i < numbers.length; i++) {
+//            for (int j = 0; j < numbers.length; j++) {
+//
+//                for (int k = 0; k < numbers.length; k++) {//for loop for shifting 0s
+//                    if (k + 1 == numbers.length) {
+//                        break;
+//                    } else if (numbers[k][i] == 0) {
+//                        numbers[k][i] += numbers[k + 1][i];
+//                        numbers[k + 1][i] = 0;
+//                    }//end if
+//                }//end for k
+//            }
+//        }
+////fusing
+//        for (int i = 0; i < numbers.length; i++) {
+//            for (int j = 0; j < numbers.length; j++) {
+//                //for loop for adding the numbers or not
+//                if (j + 1 == numbers.length) {
+//                    break;
+//                } else if (numbers[j][i] == numbers[j + 1][i]) {
+//                    numbers[j][i] += numbers[j + 1][i];
+//                    numbers[j + 1][i] = 0;
+//                }
+//            }//end for j
+//            for (int j = 0; j < numbers.length; j++) {
+//                if (j + 1 == numbers.length) {
+//                    break;
+//                }
+//                if (numbers[j][i] == 0) {
+//                    numbers[j][i] += numbers[j + 1][i];
+//                    numbers[j + 1][i] = 0;
+//                }//end if
+//            }
+//            for (int j = 0; j < numbers.length; j++) {
+//
+//                for (int k = 0; k < numbers.length; k++) {//for loop for shifting 0s
+//                    if (k + 1 == numbers.length) {
+//                        break;
+//                    } else if (numbers[k][i] == 0) {
+//                        numbers[k][i] += numbers[k + 1][i];
+//                        numbers[k + 1][i] = 0;
+//                    }//end if
+//                }//end for k
+//            }
+//
+//        }//end for i
+//        if (checkBoardFull()) {
+//            randomNextTile();
+//        }
+//        printNumber();
+//    }//end method
+//
+//    public void moveDown() {
+//        storeTempArray();
+//        for (int i = 0; i < numbers.length; i++) {
+//            for (int j = numbers.length - 1; j >= 0; j--) {
+//                for (int k = numbers.length - 1; k >= 0; k--) {
+//                    //for loop for adding the numbers or not
+//                    if (k - 1 < 0) {
+//                        break;
+//                    } else if (numbers[k][i] == 0) {
+//                        numbers[k][i] += numbers[k - 1][i];
+//                        numbers[k - 1][i] = 0;
+//                    }
+//                }//end for k
+//
+//            }////end for j
+//        }//end for i
+//
+//        //fusing
+//        for (int i = 0; i < numbers.length; i++) {
+//            for (int j = numbers.length - 1; j >= 0; j--) {
+//                if (j - 1 < 0) {
+//                    break;
+//                } else if (numbers[j][i] == numbers[j - 1][i]) {
+//                    numbers[j][i] += numbers[j - 1][i];
+//                    numbers[j - 1][i] = 0;
+//                }//end if
+//            }//end for j
+//            for (int j = numbers.length - 1; j >= 0; j--) {
+//                if (j - 1 < 0) {
+//                    break;
+//                }
+//                if (numbers[j][i] == 0) {
+//                    numbers[j][i] += numbers[j - 1][i];
+//                    numbers[j - 1][i] = 0;
+//                }
+//            }
+//
+//        }//end for i
+//
+//        if (checkBoardFull()) {
+//            randomNextTile();
+//        }
+//        printNumber();
+//    }
 
 
     //todo: finish the method of four direction moving.
@@ -660,7 +942,7 @@ public class GridNumber {
             for (int i = 0; i < numbers.length; i++) {
                 for (int j = 0; j < numbers.length; j++) {
                     if (j == numbers.length - 1)
-                        writer.write( numbers[i][j]+ "\n");
+                        writer.write(numbers[i][j] + "\n");
                     else writer.write(numbers[i][j] + "-");
                 }
             }
@@ -677,14 +959,14 @@ public class GridNumber {
             FileReader fr = new FileReader(filepath + ".txt");
             BufferedReader br = new BufferedReader(fr); //read line by line
 
-                for(int i =0; i < numbers.length ; i++) {
-                    String[] arrayLine = br.readLine().split("-");
-                    System.out.println(arrayLine[i]);
-                    for(int j=0; j < numbers.length; j++) {
+            for (int i = 0; i < numbers.length; i++) {
+                String[] arrayLine = br.readLine().split("-");
+//                System.out.println(arrayLine[i]);
+                for (int j = 0; j < numbers.length; j++) {
 //                        System.out.println(Integer.parseInt(arrayLine[i]));
-                        numbers[i][j] = Integer.parseInt(arrayLine[j]);
-                    }
+                    numbers[i][j] = Integer.parseInt(arrayLine[j]);
                 }
+            }
 
             fr.close();
             printNumber();
@@ -701,41 +983,133 @@ public class GridNumber {
         }
     }
 
-    public int getSteps(){
+    public int getSteps() {
         return steps;
     }
 
-//    public void GameOver() {
+    //    public void GameOver() {
 //
 //    }
+//    public void GameOver() {
+//
+//        for(int i=0; i<numbers.length; i++){
+//            int count1=0;
+//            for(int j=0; j<numbers.length;j++){
+//                if(j+1==numbers.length){break;}
+//                if (numbers[i][j] == 0) {
+//                    break;
+//                }else if(numbers[i][j + 1] == numbers[i][j]) {break;
+//                }else{count1++;}//end for i
+//
+//            }//end for j
+//            if(count1==numbers.length-1){
+//                LOSS_CHECK_inside[i] = false;
+//            }
+//        }//end for i
+//        for(int p=0; p<4 ;p++){
+//            System.out.println(LOSS_CHECK_inside[p]);
+//        }
+//        int count_losses=0;
+//        for(int i= 0; i< numbers.length;i++) {
+//
+//            if (LOSS_CHECK_inside[i]==false){count_losses++;}
+//            if(count_losses ==4){
+//                Lost =true;
+//                System.out.println("------YOU LOOSE------");
+//                break;
+//            }
+//        }
+//    }//end method
     public void GameOver() {
-
-        for(int i=0; i<numbers.length; i++){
-            int count1=0;
-            for(int j=0; j<numbers.length;j++){
-                if(j+1==numbers.length){break;}
-                if (numbers[i][j] == 0) {
+        for (int i = 0; i < 4; i++) {
+            LOSS_CHECK_inside[i] = true;
+        }
+        for (int i = 0; i < 4; i++) {
+            LOSS_CHECK[i] = true;
+        }
+        //horizontal check
+        for (int i = 0; i < numbers.length; i++) {
+            int count1 = 0;
+            for (int j = 0; j < numbers.length; j++) {
+                if (j + 1 == numbers.length) {
                     break;
-                }else if(numbers[i][j + 1] == numbers[i][j]) {break;
-                }else{count1++;}//end for i
+                }
+                if (numbers[i][j] == 0) {
+break;
+                } else if (numbers[i][j + 1] == numbers[i][j]) {
+                    break;
+                } else {
+                    count1++;
+                }//end for i
 
             }//end for j
-            if(count1==numbers.length-1){
+            if (count1 == numbers.length - 1) {
                 LOSS_CHECK_inside[i] = false;
             }
         }//end for i
-        for(int p=0; p<4 ;p++){
-            System.out.println(LOSS_CHECK_inside[p]);
-        }
-        int count_losses=0;
-        for(int i= 0; i< numbers.length;i++) {
 
-            if (LOSS_CHECK_inside[i]==false){count_losses++;}
-            if(count_losses ==4){
-                Lost =true;
-                System.out.println("------YOU LOOSE------");
-                break;
+
+        //vertical check
+        for (int i = 0; i < numbers.length; i++) {
+            int count1 = 0;
+            for (int j = 0; j < numbers.length; j++) {
+                if (j + 1 == numbers.length) {
+                    break;
+                }
+                if (numbers[j][i] == 0) {
+                    break;
+                } else if (numbers[j + 1][i] == numbers[j][i]) {
+                    break;
+                } else {
+                    count1++;
+                }//end for i
+
+            }//end for j
+            if (count1 == numbers.length - 1) {
+                LOSS_CHECK[i] = false;
             }
         }
+
+        int count_lossesV = 0;
+        for (int i = 0; i < numbers.length; i++) {
+            if (LOSS_CHECK[i] == false) {
+                count_lossesV++;
+            }
+//            System.out.println(count_lossesV);
+        }
+
+        int count_lossesH = 0;
+        for (int i = 0; i < numbers.length; i++) {
+            if (LOSS_CHECK_inside[i] == false) {
+                count_lossesH++;
+            }
+        }//end for
+// && count_lossesH==4
+
+        if (count_lossesV == 4 && count_lossesH == 4) {
+            Lost = true;
+            System.out.println("------YOU LOOSE------");
+
+        }
+//        for (int p=0; p < 4; p++){
+//            System.out.println(LOSS_CHECK_inside[p]);
+//        }
+//        for (int p=0; p < 4; p++){
+//            System.out.println(LOSS_CHECK_inside[p]);
+//        }
+
+
     }//end method
+
+    //gamewin
+    public void GameWin(){
+        for (int i=0; i<numbers.length; i++){
+            for(int j=0; j<numbers.length; j++){
+                if(numbers[i][j] == WinScore){
+                    System.out.println("You Won-wai");
+                    break;
+                }
+            }
+        }
+    }
 }
