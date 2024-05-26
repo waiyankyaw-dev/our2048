@@ -29,6 +29,10 @@ public class GameController {
         System.out.println("Do redo game here");
     }
 
+    public void saveGame(String filePath){
+        model.save(filePath);
+    }
+
     //todo: add other methods such as loadGame, saveGame...
 
 }

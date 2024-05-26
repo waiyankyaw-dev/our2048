@@ -7,7 +7,7 @@ import java.awt.*;
 
 
 public class GamePanel extends ListenerPanel {
-    private final int COUNT = 4;
+    private final int COUNT = 6;
     private GridComponent[][] grids;
 
     private GridNumber model;

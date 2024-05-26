@@ -29,14 +29,14 @@ public class SignUp extends JFrame {
 
         text1 = new JTextField(60);
         text2 = new JPasswordField(60);
-        button1 = new JButton("SignUp");
+        button1 = new JButton("SingUp");
         button2 = new JButton("Login");
 
 
         text1.setBounds(100, 60, 120, 30);
         text2.setBounds(100, 100, 120, 30);
         button1.setBounds(120, 140, 80, 30);
-        button2.setBounds(120,190,80,30);
+        button2.setBounds(120, 190, 80, 30);
 
         label2 = new JLabel("");
         label2.setBounds(250, 80, 300, 30);
@@ -54,27 +54,31 @@ public class SignUp extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 //writeCode
 
-                //validate no spacing is allowed in username and password
+                //validate empty username and empty password
+                if (text1.getText().isEmpty() || text2.getText().isEmpty()) {
+                    label2.setText("must not be empty");
+                } else
+                    //validate no spacing is allowed in username and password
 
-                if (containsWhiteSpace(text1.getText()) || containsWhiteSpace(text2.getText())) {
-                    label2.setText("Username and Password must not have space");
+                    if (containsWhiteSpace(text1.getText()) || containsWhiteSpace(text2.getText())) {
+                        label2.setText("Username and Password must not have space");
 
 
-                } else  //check whether account already exist!
-                    if (isAccountExist(text1.getText(), text2.getText())) {
-                        label2.setText("Account already exist!. Just login in.");
-                    } else {
-                        try {
-                            FileWriter fw = new FileWriter("login.txt", true);
-                            fw.write(text1.getText() + " " + text2.getText() + "\n");
-                            fw.close();
-                            JFrame f = new JFrame();
-                            JOptionPane.showMessageDialog(f, "Registration Completed!");
-                            dispose();
-                        } catch (IOException ex) {
-                            throw new RuntimeException(ex);
+                    } else  //check whether account already exist!
+                        if (isAccountExist(text1.getText(), text2.getText())) {
+                            label2.setText("Account already exist!. Just login in.");
+                        } else {
+                            try {
+                                FileWriter fw = new FileWriter("login.txt", true);
+                                fw.write(text1.getText() + "\t" + text2.getText() + "\n");
+                                fw.close();
+                                JFrame f = new JFrame();
+                                JOptionPane.showMessageDialog(f, "Registration Completed!");
+                                dispose();
+                            } catch (IOException ex) {
+                                throw new RuntimeException(ex);
+                            }
                         }
-                    }
             }
         });
 
@@ -85,7 +89,7 @@ public class SignUp extends JFrame {
                 dispose();
                 Login login = new Login();
                 login.setVisible(true);
-                login.setBounds(400,200,500,300);
+                login.setBounds(400, 200, 500, 300);
             }
         });
 
@@ -98,7 +102,6 @@ public class SignUp extends JFrame {
             for (int i = 0; i < line.length(); i++) {
                 if (line.charAt(i) == ' ') {
                     space = true;
-                    break;
                 }
             }
         }
@@ -111,7 +114,7 @@ public class SignUp extends JFrame {
             BufferedReader br = new BufferedReader(fr); //read line by line
             String line;
             while ((line = br.readLine()) != null) {
-                if (line.equals(userName + " " + password)) {
+                if (line.equals(userName + "\t" + password)) {
                     return true;
                 }
             }
@@ -120,6 +123,5 @@ public class SignUp extends JFrame {
             throw new RuntimeException(error);
         }
         return false;
-
     }
 }

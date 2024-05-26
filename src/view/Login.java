@@ -54,23 +54,19 @@ public class Login extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 //writeCode
                 boolean matched = false;
-                String userName = text1.getText().toString();
-                String password = text2.getText().toString();
-
-                try{
+                String userName = text1.getText();
+                String password = text2.getText();
+                try {
                     FileReader fr = new FileReader("login.txt");
                     BufferedReader br = new BufferedReader(fr); //read line by line
                     String line;
-
-                    while((line=br.readLine()) != null){
-                        System.out.println(br.readLine());
-                        if(line.equals(userName+ " " + password)){
+                    while ((line = br.readLine()) != null) {
+                        if (line.equals(userName+"\t"+password)) {
                             matched = true;
-                            break;
                         }
                     }
                     fr.close();
-                }catch (Exception error) {
+                } catch (Exception error) {
                     throw new RuntimeException(error);
                 }
 
@@ -80,7 +76,7 @@ public class Login extends JFrame {
                     label2.setText("Successful!");
                 }else{
                     JFrame f = new JFrame();
-                    JOptionPane.showMessageDialog(f, "Invalid Username or Password! Pls SignUp");
+                    label2.setText("Invalid Username or Password!");
                 }
             }
         });
