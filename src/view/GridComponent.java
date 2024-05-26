@@ -9,7 +9,7 @@ public class GridComponent extends JComponent {
     private int row;
     private int col;
     private int number;
-    static Font font = new Font("Serif", Font.BOLD, 42);
+    static Font font = new Font("TRUE TYPE_FONT", Font.BOLD, 42);
 
     public GridComponent(int row, int col, int gridSize) {
         this.setSize(gridSize, gridSize);
@@ -31,7 +31,7 @@ public class GridComponent extends JComponent {
         if (number > 0) {
             g.setColor(ColorMap.getColor(number));
             g.fillRect(1, 1, getWidth() - 2, getHeight() - 2);
-            g.setColor(Color.black);
+            g.setColor(new Color(119, 110, 101));
             g.setFont(font);
             FontMetrics metrics = g.getFontMetrics(g.getFont());
             int textWidth = metrics.stringWidth(String.valueOf(number));

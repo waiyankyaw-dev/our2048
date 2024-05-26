@@ -19,7 +19,7 @@ public class GamePanel extends ListenerPanel {
         this.setVisible(true);
         this.setFocusable(true);
         this.setLayout(null);
-        this.setBackground(Color.BLUE);
+        this.setBackground(new Color(187, 173, 160));
         this.setSize(size, size);
 
 
@@ -97,6 +97,7 @@ public class GamePanel extends ListenerPanel {
         this.steps++;
         this.stepLabel.setText(String.format("Step: %d", this.steps));
     }
+
 
     public void setStepLabel(JLabel stepLabel) {
         this.stepLabel = stepLabel;

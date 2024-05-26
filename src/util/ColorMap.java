@@ -24,6 +24,6 @@ public class ColorMap {
     }
 
     public static Color getColor(int i) {
-        return colorMap.getOrDefault(i, Color.black);
+        return colorMap.getOrDefault(i, new Color(14, 17, 17));
     }
 }
