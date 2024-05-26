@@ -73,7 +73,11 @@ public class Login extends JFrame {
 
                 if(matched) {
                     //open gameboard
-                    label2.setText("Successful!");
+//                    label2.setText("Successful!");
+                    System.out.println("Login Successful");
+                    dispose();
+            GameFrame gameFrame = new GameFrame(700, 500, "waiyan", 6, 32);
+            gameFrame.setVisible(true);
                 }else{
                     JFrame f = new JFrame();
                     label2.setText("Invalid Username or Password!");

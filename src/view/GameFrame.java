@@ -16,12 +16,20 @@ public class GameFrame extends JFrame {
     private JLabel stepLabel;
     private GamePanel gamePanel;
 
-    public GameFrame(int width, int height) {
+    private String username;
+    private int size;
+
+    private int winScore;
+
+    public GameFrame(int width, int height, String username, int size, int winScore) {
+        this.winScore = winScore;
+        this.username = username;
+        this.size = size;
         this.setTitle("2024 CS109 Project Demo");
         this.setLayout(null);
         this.setSize(width, height);
         ColorMap.InitialColorMap();
-        gamePanel = new GamePanel((int) (this.getHeight() * 0.8));
+        gamePanel = new GamePanel((int) (this.getHeight() * 0.8), username, size, winScore);
         gamePanel.setLocation(this.getHeight() / 15, this.getWidth() / 15);
         this.add(gamePanel);
 

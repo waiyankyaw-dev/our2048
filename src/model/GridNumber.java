@@ -1,9 +1,6 @@
 package model;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -16,9 +13,9 @@ public class GridNumber {
     private int YourScore = 0;
     private int YourHighScore = 0;
     //private int[] WinScores = {16, 512, 1024, 2048, 4096};
-    private int WinScore = 16;
     private int score = 0;
     private int redoScore = 0;
+    private int higherScore = 0;
 
     long startTime = 0;
     long endTime = 0;
@@ -32,12 +29,25 @@ public class GridNumber {
 
     private boolean Lost = false;
 
+    private int winScore;
     int steps;
 
 
     static Random random = new Random();
 
-    public GridNumber(int xCount, int yCount) {
+    private String username;
+    private int size;
+
+    private boolean gameOver;
+    private boolean gameWin;
+
+    public GridNumber(int xCount, int yCount, String username, int size, int winScore) {
+        this.winScore = winScore;
+//        System.out.println(winScore);
+//        System.out.println(size);
+        this.size = size;
+        this.username = username;
+        System.out.println(username);
         this.X_COUNT = xCount;
         this.Y_COUNT = yCount;
         this.numbers = new int[this.X_COUNT][this.Y_COUNT];
@@ -45,12 +55,13 @@ public class GridNumber {
 
         this.LOSS_CHECK_inside = new boolean[xCount];
         this.LOSS_CHECK = new boolean[xCount];
-
+        this.gameOver = false;
+        this.gameWin = false;
 
         //call method
         this.initialNumbers();   //need to create a spawn
 
-//        this.load("final");
+//        this.load("aaaaa");
 //        GameOver();
         this.steps = 0;
     }
@@ -392,8 +403,34 @@ public class GridNumber {
         long minutes = (elapsedTime/1000) / 60;
         long seconds = (elapsedTime/1000) % 60;
         System.out.println(minutes +"minutes "+ seconds + "seconds");
+
+//        if(score> higherScore){
+//            higherScore = score;
+//        }else{
+//
+//        }
+
+        File f1 = new File(username);
+        boolean bool = f1.mkdir();
+        if(bool){
+            System.out.println("Folder is created successfully");
+        }else{
+            System.out.println("Error Found!");
+        }
+
+        File f2 = new File(username+"//"+String.valueOf(size));
+        boolean bool2 = f2.mkdir();
+        if(bool2){
+            System.out.println("Folder is created successfully");
+        }else{
+            System.out.println("Error Found!");
+        }
+
+
         try {
-            FileWriter writer = new FileWriter(filepath + ".txt", true);
+            FileWriter writer = new FileWriter(username+"\\"+ size+ "\\" +filepath+".txt");
+            writer.write(score +"\n");
+            writer.write( elapsedTime+"\n");
             for (int i = 0; i < numbers.length; i++) {
                 for (int j = 0; j < numbers.length; j++) {
                     if (j == numbers.length - 1)
@@ -411,9 +448,10 @@ public class GridNumber {
     //loadfile
     public void load(String filepath) {
         try {
-            FileReader fr = new FileReader(filepath + ".txt");
+            FileReader fr = new FileReader(username+"\\"+ size+"\\" +filepath + ".txt");
             BufferedReader br = new BufferedReader(fr); //read line by line
-
+            score = Integer.parseInt(br.readLine());
+            elapsedTime = Integer.parseInt(br.readLine());
             for (int i = 0; i < numbers.length; i++) {
                 String[] arrayLine = br.readLine().split("-");
 //                System.out.println(arrayLine[i]);
@@ -511,6 +549,7 @@ public class GridNumber {
 
         if (count_lossesV == 4 && count_lossesH == 4) {
             Lost = true;
+            this.gameWin = true;
             System.out.println("------YOU LOOSE------");
 
         }
@@ -528,8 +567,9 @@ public class GridNumber {
     public void GameWin() {
         for (int i = 0; i < numbers.length; i++) {
             for (int j = 0; j < numbers.length; j++) {
-                if (numbers[i][j] == WinScore) {
+                if (numbers[i][j] == winScore) {
                     System.out.println("You Won-wai");
+                    this.gameWin = true;
                     break;
                 }
             }
@@ -537,4 +577,11 @@ public class GridNumber {
 
     }
 
+    public boolean isGameOver() {
+        return gameOver;
+    }
+
+    public boolean isGameWin() {
+        return gameWin;
+    }
 }

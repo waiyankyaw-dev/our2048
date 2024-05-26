@@ -15,7 +15,13 @@ public class GamePanel extends ListenerPanel {
     private int steps;
     private final int GRID_SIZE;
 
-    public GamePanel(int size) {
+    private  String username;
+    private int grid_size;
+    private int winScore;
+
+    public GamePanel(int size, String username, int grid_size, int winScore) {
+        this.winScore = winScore;
+        this.username = username;
         this.setVisible(true);
         this.setFocusable(true);
         this.setLayout(null);
@@ -25,7 +31,7 @@ public class GamePanel extends ListenerPanel {
 
         this.GRID_SIZE = size / COUNT;    //
         this.grids = new GridComponent[COUNT][COUNT];  // for gui view
-        this.model = new GridNumber(COUNT, COUNT);     // for model
+        this.model = new GridNumber(COUNT, COUNT, username, grid_size, winScore);     // for model
         initialGame();
 
     }
