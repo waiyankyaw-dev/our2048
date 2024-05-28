@@ -29,6 +29,11 @@ public class GridNumber {
 
     private boolean Lost = false;
 
+    private boolean[]slideSide;
+    boolean sliiiiide=true;
+
+//    private boolean Lost = false;
+
     private int winScore;
     int steps;
 
@@ -57,6 +62,7 @@ public class GridNumber {
         this.LOSS_CHECK = new boolean[xCount];
         this.gameOver = false;
         this.gameWin = false;
+        this.slideSide = new boolean[xCount];
 
         //call method
         this.initialNumbers();   //need to create a spawn
@@ -75,8 +81,7 @@ public class GridNumber {
             j = random.nextInt(X_COUNT);
         }
         numbers[i][j] = random.nextInt(10) < 9 ? 2 : 4; // 90% chance to get 2
-
-
+        System.out.println("spawn created");
     }
 
 //    public void fakeInitialNumbers() {
@@ -133,13 +138,63 @@ public class GridNumber {
         printNumber();
     }
 
-    //todo: finish the method of four direction moving.
+
     public void moveRight() {
         storeTempArray();
         redoScore = score;
+        for(int i = 0; i<numbers.length; i++){
+            slideSide[i] = false;
+        }
+
+        //for sorting/colliding
         for (int i = 0; i < numbers.length; i++) {
-            for (int j = numbers.length - 1; j > 0; j--) {
+            // checkSTUCK();
+
+            int count0 =0;
+            int countN =0;
+
+            for(int j=0; j<numbers.length; j++){
+                int count4 =0;
+                for(int n=0; n<numbers.length; n++){
+                    if(numbers[i][n]==0){
+                        count4++;
+                    }
+                }System.out.println(count4);
+                if(count4==numbers.length){slideSide[i] = false;break;}
+                if(numbers[i][numbers.length-1]==0){
+                    slideSide[i]=true;
+                    count0 =0;
+                    countN =0;
+                    System.out.println("can slide as end is 0");
+                    break;
+
+                }
+                if(j+1==numbers.length){break;}/**checks for out of bounds*/
+                if(numbers[i][j]==0){
+                    count0++;
+                    System.out.println("here is 0   "+ count0);
+                }else if(numbers[i][j]>0){
+                    if(numbers[i][j]==numbers[i][j+1]){
+                        slideSide[i]=true;
+                        System.out.println("check fusion");
+                    }
+                    if(numbers[i][j+1]==0){
+                        countN=0;
+                        slideSide[i]=true;
+
+
+                    }else{countN++;}
+                    if(j==numbers.length-1&&countN>0){
+                        System.out.println("Ncount    "+countN);
+                        slideSide[i]=false;
+                        break;
+                    }
+                }
+
+            }
+            for(int j =numbers.length-1; j > 0; j--) {
                 for (int k = numbers.length - 1; k >= 0; k--) {//moving 0s to the left before starting to add the numbers
+
                     if (k - 1 < 0) {//stacking
                         // System.out.println('1');
                         break;
@@ -147,105 +202,248 @@ public class GridNumber {
                     if (numbers[i][k] == 0) {
                         numbers[i][k] += numbers[i][k - 1];
                         numbers[i][k - 1] = 0;
+                        // sliiiiide=true;
                     }
                 }//end for k
             }//end for j
 
+
+
+            System.out.println(slideSide[i]);
+
+
+
+            printNumber();
         } //end for i
 
+        //for fusing
         for (int i = 0; i < numbers.length; i++) {
-            for (int j = numbers.length - 1; j > 0; j--) {
+            int TempScore = 0;
+            boolean slide = true;
+            for (int j = numbers.length - 1; j >= 0; j--) {
                 if (j - 1 < 0) {//fusing
-                    // System.out.println('1');
+
                     break;
                 } else if (numbers[i][j - 1] == numbers[i][j]) {//&& numbers[i][k]!=0 && numbers[i][k-1]!=0
                     int highCombinedNumber = numbers[i][j] += numbers[i][j - 1];
                     numbers[i][j - 1] = 0;
                     score += highCombinedNumber;
-                    // System.out.println('3');}*/
+                    // if(TempScore > YourScore){YourScore =TempScore;}
+                }//else{slide=false;}
+                //changing temp score
+                if(TempScore < numbers[i][j]){
+                    TempScore =numbers[i][j];
+                    System.out.println("TEMPSCORE-----------"+TempScore+"-----------");
                 }
-
-
             }//end for j
+            // if(slide==false){slideSideFUSE[i]=false;}
+
+            if(TempScore >= YourScore){YourScore =TempScore;}//changing the player score
+            if(YourScore >= YourHighScore){YourHighScore =YourScore;}//changing the players high score
+
+
+            //stacking after fusing
             for (int j = numbers.length - 1; j > 0; j--) {
                 if (numbers[i][j] == 0) {
                     numbers[i][j] += numbers[i][j - 1];
-                    numbers[i][j - 1] = 0;
-                }
-            }
+                    numbers[i][j - 1] = 0;}
+                //endif
+            }//end for j
         }//end for i
+
+
+
+        int countr=0;
+        for(int i =0; i< slideSide.length;i++){
+            if(slideSide[i]==true){
+                System.out.println(slideSide[i]);
+                countr++;
+            }
+        }//end for
+
+        if(countr>0){
+            System.out.println(countr);
+            randomNextTile();
+        }else {
+            System.out.println('0');
+        }
         System.out.println("WaiScore: " + score + "-----------");
 
         GameWin();
         GameOver();
 
-        if (checkBoardFull()) {
-            randomNextTile();
-        }
-        printNumber();
     }//end method
-
     public void moveLeft() {
         storeTempArray();
         redoScore = score;
+        for(int i = 0; i<numbers.length; i++){
+            slideSide[i] = false;
+        }
         //sorting
         for (int i = 0; i < numbers.length; i++) {
-            for (int j = 0; j < numbers.length; j++) {
+            int count0 =0;
+            int countN =0;
+            for(int j=numbers.length-1; j>=0; j--){
 
-                for (int k = 0; k < numbers.length; k++) {//moving 0s to the left before starting to add the numbers
+                int count4 =0;
+                for(int n=0; n<numbers.length; n++){
+                    if(numbers[i][n]==0){
+                        count4++;
+                    }
+                }System.out.println(count4);
+                if(count4==numbers.length){slideSide[i] = false;break;}
+
+                if(numbers[i][0]==0){
+                    slideSide[i]=true;
+                    System.out.println("can slide as end is 0");
+                    break;
+
+                }
+                if(j-1<0){break;}/**checks for out of bounds*/
+                if(numbers[i][j]==0){
+                    count0++;
+                    System.out.println("here is 0   "+ count0);
+                }else if(numbers[i][j]>0){
+                    if(numbers[i][j-1]==numbers[i][j]){
+                        slideSide[i]=true;
+                        System.out.println("check fusion");
+                    }
+                    if(numbers[i][j-1]==0){
+                        countN=0;
+                        slideSide[i]=true;
+
+                    }else{countN++;}
+                    if(j==0&&countN>0){
+                        System.out.println("Ncount    "+countN);
+                        slideSide[i]=false;
+                        break;
+                    }
+                }
+
+            }
+
+            for (int j =0 ; j<numbers.length; j++) {
+
+                for (int k =0 ; k <numbers.length; k++) {//moving 0s to the left before starting to add the numbers
                     if (k + 1 == numbers.length) {
                         break;
-                    } else if (numbers[i][k] == 0) {
-                        numbers[i][k] += numbers[i][k + 1];
-                        numbers[i][k + 1] = 0;
+                    } else if(numbers[i][k]==0) {
+                        numbers[i][k] += numbers[i][k+1];
+                        numbers[i][k+1] = 0;
                     }//end if
                 }//end for k
 
-                //adding the numbers
             }//end for j
 
+            System.out.println(slideSide[i]);
+            printNumber();
         }//end for i
 
         //fusing
         for (int i = 0; i < numbers.length; i++) {
-            for (int k = 0; k < numbers.length; k++) {
-                if (k + 1 == numbers.length) {
+            int TempScore =0;
+            for (int k =0 ; k <numbers.length; k++) {
+                if(k +1== numbers.length){
                     break;
-                } else if (numbers[i][k + 1] == numbers[i][k]) {
+                }
+                else if (numbers[i][k + 1] == numbers[i][k]) {
                     int highCombinedNumber = numbers[i][k] += numbers[i][k + 1];
                     numbers[i][k + 1] = 0;//end for i
                     score += highCombinedNumber;
                 }
-            }//end for k
-            for (int j = 0; j < numbers.length; j++) {
-                if (j + 1 == numbers.length) {
-                    break;
+                //Setting the temp score
+                if(TempScore < numbers[i][k]){
+                    TempScore =numbers[i][k];
+                    System.out.println("TEMPSCORE-----------"+TempScore+"-----------");
                 }
+            }//end for k
+
+            //changing the player score
+            if(TempScore >= YourScore){YourScore =TempScore;}
+            if(YourScore >= YourHighScore){YourHighScore =YourScore;}//changing the players high score
+
+            for (int j =0 ; j<numbers.length; j++) {
+                if(j+1==numbers.length ){break;}
                 if (numbers[i][j] == 0) {
                     numbers[i][j] += numbers[i][j + 1];
                     numbers[i][j + 1] = 0;
                 }//end if
             }//end for k
-
         }//end for i
+
+        int countr=0;
+        for(int i =0; i< slideSide.length;i++){
+            if(slideSide[i]==true){
+                System.out.println(slideSide[i]);
+                countr++;
+            }
+        }//end for
+
+        if(countr>0){
+            System.out.println(countr);
+            randomNextTile();
+        }else {
+            System.out.println('0');
+        }
 
         System.out.println("WaiScore: " + score + "-----------");
 
         GameWin();
         GameOver();
 
-        if (checkBoardFull()) {
-            randomNextTile();
-        }
-        printNumber();
+        //to check if lost
+
     }//end method
 
     public void moveUp() {
         storeTempArray();
         redoScore = score;
+        for(int i = 0; i<numbers.length; i++){
+            slideSide[i] = false;
+        }
+
+
         //sorting
         for (int i = 0; i < numbers.length; i++) {
-            for (int j = 0; j < numbers.length; j++) {
+            int count0 =0;
+            int countN =0;
+            for(int j=numbers.length-1; j>=0; j--){
+
+                int count4 =0;
+                for(int n=0; n<numbers.length; n++){
+                    if(numbers[n][j]==0){
+                        count4++;
+                    }
+                }System.out.println(count4);
+                if(count4==numbers.length){slideSide[i] = false;break;}
+
+                if(numbers[0][i]==0){
+                    slideSide[i]=true;
+                    System.out.println("can slide as end is 0");
+                    break;
+                }
+
+                if(j-1<0){break;}/**checks for out of bounds*/
+
+                if(numbers[j][i]==0){
+                    count0++;
+                    System.out.println("here is 0   "+ count0);
+                }else if(numbers[j][i]>0){
+                    if(numbers[j][i]==numbers[j-1][i]){
+                        slideSide[i]=true;
+                        System.out.println("check fusion");
+                    }
+                    if(numbers[j-1][i]==0){
+                        slideSide[i]=true;
+
+                    }
+                    if(j==0&&countN>0){
+                        slideSide[i]=false;
+                        break;
+                    }
+                }
+            }
+            for (int j=0; j < numbers.length; j++) {
 
                 for (int k = 0; k < numbers.length; k++) {//for loop for shifting 0s
                     if (k + 1 == numbers.length) {
@@ -253,60 +451,120 @@ public class GridNumber {
                     } else if (numbers[k][i] == 0) {
                         numbers[k][i] += numbers[k + 1][i];
                         numbers[k + 1][i] = 0;
-                    }//end if
+                    }//end if//end if
                 }//end for k
             }
         }
 //fusing
         for (int i = 0; i < numbers.length; i++) {
-            for (int j = 0; j < numbers.length; j++) {
+            int TempScore =0;
+            for (int j=0; j < numbers.length; j++) {
                 //for loop for adding the numbers or not
-                if (j + 1 == numbers.length) {
+                if (j +1  == numbers.length) {
                     break;
-                } else if (numbers[j][i] == numbers[j + 1][i]) {
-                    int highCombinedNumber = numbers[j][i] += numbers[j + 1][i];
-                    numbers[j + 1][i] = 0;
+                }else if(numbers[j][i] == numbers[j+1][i]){
+                    int highCombinedNumber = numbers[j][i] += numbers[j+1][i];
+                    numbers[j+1][i] = 0;
                     score += highCombinedNumber;
                 }
-            }//end for j
-            for (int j = 0; j < numbers.length; j++) {
-                if (j + 1 == numbers.length) {
-                    break;
-                }
-                if (numbers[j][i] == 0) {
-                    numbers[j][i] += numbers[j + 1][i];
-                    numbers[j + 1][i] = 0;
-                }//end if
-            }
-            for (int j = 0; j < numbers.length; j++) {
 
+                //Setting the temp score
+                if(TempScore <= numbers[j][i]){
+                    TempScore =numbers[j][i];
+                    System.out.println("TEMPSCORE-----------"+TempScore+"-----------");
+                }//end if
+            }//end for j
+
+            if(TempScore >= YourScore){YourScore =TempScore;}
+            if(YourScore >= YourHighScore){YourHighScore =YourScore;}//changing the players high score
+
+            for (int j=0; j < numbers.length; j++) {
                 for (int k = 0; k < numbers.length; k++) {//for loop for shifting 0s
                     if (k + 1 == numbers.length) {
                         break;
                     } else if (numbers[k][i] == 0) {
                         numbers[k][i] += numbers[k + 1][i];
                         numbers[k + 1][i] = 0;
-                    }//end if
+                    }//end if//end if
                 }//end for k
             }
 
+            System.out.println(slideSide[i]);
+            printNumber();
         }//end for i
+
+        //to check if lost
+        int countr=0;
+        for(int i =0; i< slideSide.length;i++){
+            if(slideSide[i]==true){
+                System.out.println(slideSide[i]);
+                countr++;
+            }
+        }//end for
+
+        if(countr>0){
+            System.out.println(countr);
+            randomNextTile();
+        }else {
+            System.out.println('0');
+        }
 
         System.out.println("WaiScore: " + score + "-----------");
 
         GameWin();
         GameOver();
-
-        if (checkBoardFull()) {
-            randomNextTile();
-        }
-        printNumber();
     }//end method
 
     public void moveDown() {
         storeTempArray();
         redoScore = score;
+        for(int i = 0; i<numbers.length; i++){
+            slideSide[i] = false;
+        }
+
         for (int i = 0; i < numbers.length; i++) {
+
+            int count0 =0;
+            int countN =0;
+
+            for(int j=0; j<numbers.length; j++){
+                int count4 =0;
+                for(int n=0; n<numbers.length; n++){
+                    if(numbers[n][i]==0){
+                        count4++;
+                    }
+                }System.out.println(count4);
+                if(count4==numbers.length){slideSide[i] = false;break;}
+                if(numbers[numbers.length-1][i]==0){
+                    slideSide[i]=true;
+
+                    System.out.println("can slide as end is 0");
+                    break;
+
+                }
+                if(j+1==numbers.length){break;}/**checks for out of bounds*/
+                if(numbers[j][i]==0){
+                    count0++;
+                    System.out.println("here is 0   "+ count0);
+                }else if(numbers[j][i]>0){
+                    if(numbers[j+1][i]==numbers[j][i]){
+                        slideSide[i]=true;
+                        System.out.println("check fusion");
+                    }
+                    if(numbers[j+1][i]==0){
+                        countN=0;
+                        slideSide[i]=true;
+
+
+                    }else{countN++;}
+                    if(j==numbers.length-1&&countN>0){
+                        System.out.println("Ncount    "+countN);
+                        slideSide[i]=false;
+                        break;
+                    }
+                }
+
+            }
             for (int j = numbers.length - 1; j >= 0; j--) {
                 for (int k = numbers.length - 1; k >= 0; k--) {
                     //for loop for adding the numbers or not
@@ -315,7 +573,7 @@ public class GridNumber {
                     } else if (numbers[k][i] == 0) {
                         numbers[k][i] += numbers[k - 1][i];
                         numbers[k - 1][i] = 0;
-                    }
+                    }//end if//end if
                 }//end for k
 
             }////end for j
@@ -323,38 +581,281 @@ public class GridNumber {
 
         //fusing
         for (int i = 0; i < numbers.length; i++) {
+            int TempScore = 0;
             for (int j = numbers.length - 1; j >= 0; j--) {
-                if (j - 1 < 0) {
+                if (j - 1 <0) {
                     break;
-                } else if (numbers[j][i] == numbers[j - 1][i]) {
-                    int highCombinedNumber = numbers[j][i] += numbers[j - 1][i];
-                    numbers[j - 1][i] = 0;
+                } else if(numbers[j][i] == numbers[j-1][i]){
+                    int highCombinedNumber = numbers[j][i] += numbers[j-1][i];
+                    numbers[j-1][i] = 0;
                     score += highCombinedNumber;
-                }//end if
+                }//end if//end if//end if
+
+                //Setting the temp score
+                if(TempScore <= numbers[j][i]){
+                    TempScore =numbers[j][i];
+                    System.out.println("TEMPSCORE-----------"+TempScore+"-----------");}
             }//end for j
+
+            //setting up YOUR SCORE
+            if(TempScore >= YourScore){YourScore =TempScore;}
+            if(YourScore >= YourHighScore){YourHighScore =YourScore;}//changing the players high score
+
             for (int j = numbers.length - 1; j >= 0; j--) {
-                if (j - 1 < 0) {
-                    break;
-                }
+                if(j-1<0){break;}
                 if (numbers[j][i] == 0) {
                     numbers[j][i] += numbers[j - 1][i];
-                    numbers[j - 1][i] = 0;
-                }
-            }
+                    numbers[j - 1][i] = 0;}//end if//end if
+            }//end for j
 
+            System.out.println(slideSide[i]);
+            printNumber();
         }//end for i
 
+        //to check if lost
+        int countr=0;
+        for(int i =0; i< slideSide.length;i++){
+            if(slideSide[i]==true){
+                System.out.println(slideSide[i]);
+                countr++;
+            }
+        }//end for
+
+        if(countr>0){
+            System.out.println(countr);
+            randomNextTile();
+        }else {
+            System.out.println('0');
+        }
 
         System.out.println("WaiScore: " + score + "-----------");
 
         GameWin();
         GameOver();
+    }//enf method
 
-        if (checkBoardFull()) {
-            randomNextTile();
-        }
-        printNumber();
-    }
+    //todo: finish the method of four direction moving.
+//    public void moveRight() {
+//        storeTempArray();
+//        redoScore = score;
+//        for (int i = 0; i < numbers.length; i++) {
+//            for (int j = numbers.length - 1; j > 0; j--) {
+//                for (int k = numbers.length - 1; k >= 0; k--) {//moving 0s to the left before starting to add the numbers
+//                    if (k - 1 < 0) {//stacking
+//                        // System.out.println('1');
+//                        break;
+//                    }
+//                    if (numbers[i][k] == 0) {
+//                        numbers[i][k] += numbers[i][k - 1];
+//                        numbers[i][k - 1] = 0;
+//                    }
+//                }//end for k
+//            }//end for j
+//
+//        } //end for i
+//
+//        for (int i = 0; i < numbers.length; i++) {
+//            for (int j = numbers.length - 1; j > 0; j--) {
+//                if (j - 1 < 0) {//fusing
+//                    // System.out.println('1');
+//                    break;
+//                } else if (numbers[i][j - 1] == numbers[i][j]) {//&& numbers[i][k]!=0 && numbers[i][k-1]!=0
+//                    int highCombinedNumber = numbers[i][j] += numbers[i][j - 1];
+//                    numbers[i][j - 1] = 0;
+//                    score += highCombinedNumber;
+//                    // System.out.println('3');}*/
+//                }
+//
+//
+//            }//end for j
+//            for (int j = numbers.length - 1; j > 0; j--) {
+//                if (numbers[i][j] == 0) {
+//                    numbers[i][j] += numbers[i][j - 1];
+//                    numbers[i][j - 1] = 0;
+//                }
+//            }
+//        }//end for i
+//        System.out.println("WaiScore: " + score + "-----------");
+//
+//        GameWin();
+//        GameOver();
+//
+//        if (checkBoardFull()) {
+//            randomNextTile();
+//        }
+//        printNumber();
+//    }//end method
+//
+//    public void moveLeft() {
+//        storeTempArray();
+//        redoScore = score;
+//        //sorting
+//        for (int i = 0; i < numbers.length; i++) {
+//            for (int j = 0; j < numbers.length; j++) {
+//
+//                for (int k = 0; k < numbers.length; k++) {//moving 0s to the left before starting to add the numbers
+//                    if (k + 1 == numbers.length) {
+//                        break;
+//                    } else if (numbers[i][k] == 0) {
+//                        numbers[i][k] += numbers[i][k + 1];
+//                        numbers[i][k + 1] = 0;
+//                    }//end if
+//                }//end for k
+//
+//                //adding the numbers
+//            }//end for j
+//
+//        }//end for i
+//
+//        //fusing
+//        for (int i = 0; i < numbers.length; i++) {
+//            for (int k = 0; k < numbers.length; k++) {
+//                if (k + 1 == numbers.length) {
+//                    break;
+//                } else if (numbers[i][k + 1] == numbers[i][k]) {
+//                    int highCombinedNumber = numbers[i][k] += numbers[i][k + 1];
+//                    numbers[i][k + 1] = 0;//end for i
+//                    score += highCombinedNumber;
+//                }
+//            }//end for k
+//            for (int j = 0; j < numbers.length; j++) {
+//                if (j + 1 == numbers.length) {
+//                    break;
+//                }
+//                if (numbers[i][j] == 0) {
+//                    numbers[i][j] += numbers[i][j + 1];
+//                    numbers[i][j + 1] = 0;
+//                }//end if
+//            }//end for k
+//
+//        }//end for i
+//
+//        System.out.println("WaiScore: " + score + "-----------");
+//
+//        GameWin();
+//        GameOver();
+//
+//        if (checkBoardFull()) {
+//            randomNextTile();
+//        }
+//        printNumber();
+//    }//end method
+//
+//    public void moveUp() {
+//        storeTempArray();
+//        redoScore = score;
+//        //sorting
+//        for (int i = 0; i < numbers.length; i++) {
+//            for (int j = 0; j < numbers.length; j++) {
+//
+//                for (int k = 0; k < numbers.length; k++) {//for loop for shifting 0s
+//                    if (k + 1 == numbers.length) {
+//                        break;
+//                    } else if (numbers[k][i] == 0) {
+//                        numbers[k][i] += numbers[k + 1][i];
+//                        numbers[k + 1][i] = 0;
+//                    }//end if
+//                }//end for k
+//            }
+//        }
+////fusing
+//        for (int i = 0; i < numbers.length; i++) {
+//            for (int j = 0; j < numbers.length; j++) {
+//                //for loop for adding the numbers or not
+//                if (j + 1 == numbers.length) {
+//                    break;
+//                } else if (numbers[j][i] == numbers[j + 1][i]) {
+//                    int highCombinedNumber = numbers[j][i] += numbers[j + 1][i];
+//                    numbers[j + 1][i] = 0;
+//                    score += highCombinedNumber;
+//                }
+//            }//end for j
+//            for (int j = 0; j < numbers.length; j++) {
+//                if (j + 1 == numbers.length) {
+//                    break;
+//                }
+//                if (numbers[j][i] == 0) {
+//                    numbers[j][i] += numbers[j + 1][i];
+//                    numbers[j + 1][i] = 0;
+//                }//end if
+//            }
+//            for (int j = 0; j < numbers.length; j++) {
+//
+//                for (int k = 0; k < numbers.length; k++) {//for loop for shifting 0s
+//                    if (k + 1 == numbers.length) {
+//                        break;
+//                    } else if (numbers[k][i] == 0) {
+//                        numbers[k][i] += numbers[k + 1][i];
+//                        numbers[k + 1][i] = 0;
+//                    }//end if
+//                }//end for k
+//            }
+//
+//        }//end for i
+//
+//        System.out.println("WaiScore: " + score + "-----------");
+//
+//        GameWin();
+//        GameOver();
+//
+//        if (checkBoardFull()) {
+//            randomNextTile();
+//        }
+//        printNumber();
+//    }//end method
+//
+//    public void moveDown() {
+//        storeTempArray();
+//        redoScore = score;
+//        for (int i = 0; i < numbers.length; i++) {
+//            for (int j = numbers.length - 1; j >= 0; j--) {
+//                for (int k = numbers.length - 1; k >= 0; k--) {
+//                    //for loop for adding the numbers or not
+//                    if (k - 1 < 0) {
+//                        break;
+//                    } else if (numbers[k][i] == 0) {
+//                        numbers[k][i] += numbers[k - 1][i];
+//                        numbers[k - 1][i] = 0;
+//                    }
+//                }//end for k
+//
+//            }////end for j
+//        }//end for i
+//
+//        //fusing
+//        for (int i = 0; i < numbers.length; i++) {
+//            for (int j = numbers.length - 1; j >= 0; j--) {
+//                if (j - 1 < 0) {
+//                    break;
+//                } else if (numbers[j][i] == numbers[j - 1][i]) {
+//                    int highCombinedNumber = numbers[j][i] += numbers[j - 1][i];
+//                    numbers[j - 1][i] = 0;
+//                    score += highCombinedNumber;
+//                }//end if
+//            }//end for j
+//            for (int j = numbers.length - 1; j >= 0; j--) {
+//                if (j - 1 < 0) {
+//                    break;
+//                }
+//                if (numbers[j][i] == 0) {
+//                    numbers[j][i] += numbers[j - 1][i];
+//                    numbers[j - 1][i] = 0;
+//                }
+//            }
+//
+//        }//end for i
+//
+//
+//        System.out.println("WaiScore: " + score + "-----------");
+//
+//        GameWin();
+//        GameOver();
+//
+//        if (checkBoardFull()) {
+//            randomNextTile();
+//        }
+//        printNumber();
+//    }
 
 
     public boolean checkBoardFull() {
@@ -550,8 +1051,7 @@ public class GridNumber {
         if (count_lossesV == 4 && count_lossesH == 4) {
             Lost = true;
             this.gameWin = true;
-            System.out.println("------YOU LOOSE------");
-
+            System.out.println("You loose wai");
         }
 //        for (int p=0; p < 4; p++){
 //            System.out.println(LOSS_CHECK_inside[p]);
